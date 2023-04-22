@@ -2,7 +2,6 @@ const axios = require('axios');
 const fs = require('fs');
 require('dotenv').config();
 
-const blacklist = process.env.BLACKLIST.split(',');
 const fileName = process.env.FILE_NAME;
 
 async function fetchGames(lastAppId = 0, allApps = []) {
@@ -21,15 +20,20 @@ async function fetchGames(lastAppId = 0, allApps = []) {
 
     console.log(`${apps.length} games added to the list. Last game ID: ${apps[apps.length - 1].appid}`);
 
-    const filteredApps = apps
-      .filter(({ name }) => !blacklist.some(term => name.toLowerCase().includes(term)))
-      .map(({ appid, name }) => ({ appid, name }));
+    if (process.env.BLACKLIST) {
+      const blacklist = process.env.BLACKLIST.split(',');
+      const filteredApps = apps
+        .filter(({ name }) => !blacklist.some(term => name.toLowerCase().includes(term)))
+        .map(({ appid, name }) => ({ appid, name }));
 
-    allApps.push(...filteredApps);
+      allApps.push(...filteredApps);
+    } else {
+      allApps.push(...apps.map(({ appid, name }) => ({ appid, name })));
+    }
 
     fs.writeFileSync(fileName, JSON.stringify({ applist: { apps: allApps } }, null, 2));
 
-    await fetchGames(filteredApps.slice(-1)[0].appid, allApps);
+    await fetchGames(allApps.slice(-1)[0].appid, allApps);
   } catch (error) {
     console.error(`Error: ${error.message}`);
   }

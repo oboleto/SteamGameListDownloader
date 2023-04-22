@@ -1,6 +1,6 @@
 {
   "name": "steam-game-list-downloader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Script em Node.js para buscar todos os jogos na Steam, sem soundtracks, DLCs e demos, com um filtro e que salva em um arquivo .json",
   "main": "index.js",
   "scripts": {
